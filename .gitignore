@@ -1,0 +1,53 @@
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE Files
+.vscode/
+.idea/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+.vs/
+
+# Temporary/Generated
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Environment/Secrets
+.env
+.env.local
+*.key
+*.pem
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# ⚠️ CRITICAL: This .gitignore deliberately does NOT ignore features/, requirements/, tests/, planning/, tasks/, domain/
+# Those are TEMPLATE files only and MUST be version controlled
+# If you accidentally create feature instances in d:\source\SpecForge/, delete them manually
+# This directory is TEMPLATES ONLY — do not create generated artefacts here
+# See README.md "🔴 This SpecForge directory contains TEMPLATES ONLY"
