@@ -50,7 +50,9 @@ Context → **Requirements (1..N)** → Feature → Scenario → Test → Plan �
 Choose ONE pattern below that best fits this requirement.  
 **Replace placeholders in SQUARE BRACKETS with domain-specific values from the Context. Do not paraphrase or add extra detail.**
 
-**Use the aggregate or entity name from Context, not a system name or generic term.**
+**Use the aggregate or entity name from Context (e.g., "Order", "Payment", "Referral"), not system names (e.g., "HTTP Request", "Database Record", "Controller")**
+
+**Key Rule**: The Requirement Statement MUST reference ≥1 aggregate/entity name, ≥1 invariant name, or ≥1 event name from the Context. Business language is acceptable ONLY if it connects to domain objects defined in Context.
 
 **Ubiquitous:** The [aggregate/entity name from Context] shall [specific action/constraint: e.g., "maintain a total amount", "enforce positive quantity"]
 
@@ -78,18 +80,22 @@ Write the complete EARS requirement using ONE of the patterns above.
 List ONLY the invariant names from the Context that this requirement **preserves** (keeps true after execution).  
 **This requirement MUST NOT introduce new invariants or add new constraints. It MUST only ensure existing invariants remain satisfied.**
 
-List the invariants that remain true after this requirement executes:
-- [INVARIANT_NAME_1] — from Context
+**RULE**: This list CAN be empty if this requirement triggers ≥1 domain event. But if this list is empty AND no events are triggered, this requirement does not belong in this bounded context.
+
+List the invariants that remain true after this requirement executes (use exact names from Context):
+- [INVARIANT_NAME_1] — from Context (optional if ≥1 event below is triggered)
 - [INVARIANT_NAME_2] — from Context
 
 ---
 
 ## Domain Events Triggered
 List ONLY the event names from the Context that this requirement **causes to be emitted**.  
-**Do NOT invent new events. Copy exact names from Context. An empty list is valid if this requirement does not trigger events.**
+**Do NOT invent new events. Copy exact names from Context.**
 
-When this requirement is satisfied, these domain events are emitted:
-- [EVENT_NAME_1] — from Context
+**RULE**: This list CAN be empty if this requirement preserves ≥1 invariant above. But if this list is empty AND no invariants are preserved, this requirement does not belong in this bounded context.
+
+When this requirement is satisfied, these domain events are emitted (use exact names from Context):
+- [EVENT_NAME_1] — from Context (optional if ≥1 invariant above is preserved)
 - [EVENT_NAME_2] — from Context
 
 ---

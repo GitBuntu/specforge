@@ -49,11 +49,14 @@ Context → Requirements (1..N) → Feature → Scenario → **Test** → Plan �
 ---
 
 ## Requirement Traceability
-**Primary Requirement**: {{PRIMARY_REQ_ID}}
+**Primary Requirement**: {{PRIMARY_REQ_ID}} (the requirement this test MOST DIRECTLY validates)
 
-**All Referenced Requirements** (direct references; do NOT invent transitive dependencies):
-- {{REQ_ID_1}} — Direct requirement this test validates
-- {{REQ_ID_2}} — Direct requirement this test validates
+**All Referenced Requirements** (direct references only; do NOT invent transitive dependencies):
+- {{PRIMARY_REQ_ID}} — Primary requirement (directly tested)
+- {{REQ_ID_1}} — Additional requirement this test validates (optional, only if directly tested)
+- {{REQ_ID_2}} — Additional requirement this test validates (optional, only if directly tested)
+
+**Note**: Primary Requirement is the one that provides the main assertion. If a test validates multiple requirements, list Primary first. Other requirements are transitive validation only (not the main focus of this test).
 
 **Originating Scenario**: {{SCENARIO_ID}}.feature (from `../../features/{{FEATURE_NAME}}/{{SCENARIO_ID}}.feature`)
 
@@ -62,35 +65,35 @@ Context → Requirements (1..N) → Feature → Scenario → **Test** → Plan �
 ---
 
 ## Assertions
-**CRITICAL RULE: This section contains ONLY assertions. Zero narrative, preamble, or prose. Each assertion MUST reference an invariant or domain event from the Context.**
+**CRITICAL RULE: This section contains assertions in STRUCTURED format only. Each assertion MUST be one of the 4 patterns below. Zero narrative prose allowed between assertions.**
 
-**Assertion Format Rule**: Use ONLY these syntax patterns:
-- `Assert: [VARIABLE] == [EXPECTED_VALUE]` 
-- `Assert: [CONDITION] is true`
-- `Assert: [VARIABLE] != [UNWANTED_VALUE]`  
-- `Assert: [EVENT_NAME] emitted AND [FIELD_NAME] == [VALUE]`
+**Assertion Format Rule (MUST use ONE of these patterns EXACTLY):**
+1. `Assert: [VARIABLE] == [EXPECTED_VALUE]`  
+2. `Assert: [CONDITION] is true`  
+3. `Assert: [VARIABLE] != [UNWANTED_VALUE]`  
+4. `Assert: [EVENT_NAME] emitted with [FIELD_NAME] == [VALUE]`
 
-**Invariant Assertions** (MUST pass after {{SCENARIO_ID}}.feature executes):
-- Assert: [INVARIANT_NAME] is preserved after {{SCENARIO_ID}}.feature scenario completes
-  - Context invariant: [COPY exact name from Context — do NOT invent or rename invariants]
-  - Assertion 1: [assert actual_value == expected_value]
-  - Assertion 2: [assert another_value != unwanted_value] (if needed for this invariant)
-  - Verification: Both assertions above must pass for this invariant to be considered preserved
+**Invariant Assertions** (checked AFTER {{SCENARIO_ID}}.feature has been implemented and executed):
+- Assert: [INVARIANT_NAME] is preserved
+  - Context invariant name: [COPY exact invariant name from Context — e.g., "Order-TotalInvariant"]
+  - Assertion: Assert: [measurable_form] == [expected_value] (copy measurable form from Context)
+  - Example: `Assert: Order.Total == SUM(OrderLine.Subtotal)`
+  - Note: Invariants are tested AFTER implementation; state before and after execution must satisfy the invariant
 
-**Domain Event Assertions** (MUST be emitted when {{SCENARIO_ID}}.feature When/Then clauses execute):
-- Assert: [EVENT_NAME] is emitted when [SCENARIO_ID].feature When clause executes
-  - Context event: [COPY exact name from Context — do NOT invent or create new event names]
-  - Assertion 1: [assert event_emitted == true]
-  - Assertion 2: [assert event.field_1 == expected_value AND assert event.field_2 == expected_value]
-  - Fails if: event_emitted == false OR any required field is missing OR field value is incorrect
+**Domain Event Assertions** (checked when {{SCENARIO_ID}}.feature When/Then steps are executed AFTER implementation):
+- Assert: [EVENT_NAME] is emitted
+  - Context event name: [COPY exact event name from Context — e.g., "Order-Created"]
+  - Assertion 1: Assert: [EVENT_NAME] emitted == true
+  - Assertion 2: Assert: [EVENT_NAME].field_name == expected_value (for each required payload field)
+  - Example: `Assert: Order-Created emitted == true` AND `Assert: Order-Created.OrderId == order_id`
 
-**Required Outcome Assertions** (Directly from {{PRIMARY_REQ_ID}}):
-- Assert: {{PRIMARY_REQ_ID}} is satisfied when {{SCENARIO_ID}}.feature completes
-  - Requirement text: [COPY verbatim from {{PRIMARY_REQ_ID}}.md Requirement Statement section — do NOT paraphrase, abbreviate, or summarize]
-  - Assertion syntax: [assert observable_result == expected_outcome]
-    - Example: `Assert: Order.Total == sum of all OrderLine.Subtotal values`
-  - Failure assertion: [assert observable_result != expected_outcome]
-    - Example: `Assert: Order.Total != incorrect_calculation`
+**Required Outcome Assertions** (directly from {{PRIMARY_REQ_ID}} Requirement Statement):
+- Assert: {{PRIMARY_REQ_ID}} requirement is satisfied
+  - Requirement statement text: [COPY verbatim from {{PRIMARY_REQ_ID}}.md Requirement Statement section]
+  - Assertion syntax: Assert: [observable_result] == [expected_outcome]
+  - Example: `Assert: Order.Total == sum of all OrderLine.Subtotal values`
+  - Negative assertion: Assert: [observable_result] != [unwanted_value] (optional, to show what SHOULD NOT happen)
+  - Example: `Assert: Order.Total != 0` (if total should never be zero)
 
 ---
 

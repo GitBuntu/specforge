@@ -50,84 +50,127 @@ When asked to use this template:
 ## Purpose
 **Context Name**: {{CONTEXT_NAME}}
 
-**Responsibility**: This bounded context enforces the business rule: [specify ONE core responsibility as a rule: e.g., "Orders must preserve their total amount across all modifications" or "Payments must be atomic: either fully authorized or fully rejected"]
+**Responsibility**: This bounded context enforces EXACTLY ONE business rule (no compound rules with "and"). State it as an invariant that must always hold.
+- Format: "[Aggregate] must [specific constraint]"
+- Examples (CORRECT): 
+  - "Orders must preserve their total amount across all modifications"
+  - "Payments must be atomic: either fully authorized or fully rejected"
+- Counter-examples (WRONG): "Orders are validated and shipped" (two rules) or "System processes orders" (too vague)
 
 **Boundaries**: This context is bounded by:
-- Upstream inputs: [which bounded context(s) send domain events TO this context, and what business action triggers the input]
-- Downstream outputs: [which bounded context(s) RECEIVE domain events FROM this context, and what business action they perform as a result]
-- Not included: [explicitly state what responsibilities and rules are NOT in this context to prevent scope creep]
+- **Upstream inputs**: [List each bounded context that SENDS domain events TO this context. For each, state: "[Context] sends [EventName] when [specific business action]. This context responds by [specific action]." Format per line: "Source: [contextname], Event: [EventName], Trigger: [action], This context: [response]"] If none, write "None".
+- **Downstream outputs**: [List each bounded context that RECEIVES domain events FROM this context. For each, state: "[Context] receives [EventName] when [specific business action]. [Context] responds by [specific action]." Format per line: "Target: [contextname], Event: [EventName], Trigger: [action], Target: [response]"] If none, write "None".
+- **Not included**: [explicitly state ≥3 responsibilities that are explicitly NOT in this context to prevent scope creep. Format: "[Aggregate/responsibility] is NOT managed by this context; [reason or which context owns it]"]
 
 ## Ubiquitous Language
 Each term MUST follow this exact format.  
 **Do not add narrative — only add terms that have distinct meaning in this bounded context.**
+**REQUIRED RULE**: Every aggregate, entity, value object, and domain event name from sections below MUST appear here with a definition.
 
 - **TermName**:
-  - Meaning: [specific definition in 1 sentence, domain-grounded]
-  - Used in: [which aggregate roots or entities use this term]
-  - Not to be confused with: [what this term explicitly is NOT]
-  - Example usage: [minimal example showing the term: e.g., "Order.Total = sum of OrderLine amounts"; not a narrative scenario]
+  - Meaning: [specific definition in 1–2 sentences, domain-grounded, no narrative]
+  - Used in: [list aggregate/entity/value object/event names that use this term; comma-separated]
+  - Not to be confused with: [specify what this term is explicitly NOT; list alternative terms from OTHER bounded contexts if relevant; if none apply, write "N/A"; this field is REQUIRED]
+  - Example usage: [minimal, concrete example showing the term in context: e.g., "Order.Total = sum of all OrderLine.Subtotal values"; NOT a narrative scenario or user story]
 
 ## Aggregates
 Each aggregate MUST follow this exact format.  
 **Do not add narrative — only structural facts.**
+**REQUIRED**: Every Aggregate must have a corresponding Repository (in Repositories section) and emit ≥1 Domain Event (in Domain Events section).
 
 - **AggregateName** (Aggregate Root):
-  - Responsibility: [ONE specific domain responsibility — what business rule does this aggregate enforce?]
-  - Why boundary: [specific reason: "owns all data for this entity lifecycle", "atomic transaction boundary", "consistency boundary for...", etc.]
-  - Owned entities: [comma-separated list — do not describe]
-  - Value objects: [comma-separated list — do not describe]
+  - Responsibility: [describe exactly ONE specific domain responsibility — what business rule does this aggregate enforce? Format: "[Aggregate] enforces [specific invariant or rule]". Example: "Order enforces that total amount = sum of all line items"]
+  - Why boundary: [explain why this is an aggregate boundary, not part of another aggregate. Examples: "owns complete lifecycle of referral intake", "atomic transaction boundary for payment processing", "consistency boundary for order total calculations"]
+  - Owned entities: [comma-separated list of entity names ONLY; example: "OrderLine, OrderNote"; if none, write "None"; do NOT describe or explain]
+  - Value objects: [comma-separated list of value object names ONLY; example: "Money, Quantity, ShippingAddress"; if none, write "None"; do NOT describe or explain]
 
 ## Value Objects
 Each value object MUST follow this exact format.  
 **Do not add narrative — only structural facts.**
+**REQUIRED**: Every Value Object listed in Aggregates section MUST be defined here.
 
 - **ValueObjectName**:
-  - Immutable attributes: [comma-separated list with types: e.g., "Amount: decimal, Currency: string"]
-  - Input validation rules: [comma-separated list of rules: e.g., "Amount > 0", "Currency in [ISO 4217 codes]"]
-  - Equality: [always "Equality by value, not by reference"]
-  - Owned by: [which aggregate(s) own this value object]
+  - Immutable attributes: [comma-separated list with attribute name and type; example: "Amount: decimal, Currency: ISO4217Code, DecimalPlaces: integer"; do NOT describe each attribute; each attribute MUST be immutable]
+  - Input validation rules: [comma-separated list of constraints that must be checked at construction; example: "Amount > 0, Currency must be valid ISO 4217 code, DecimalPlaces in [0, 8]"; if no validation, write "None"]
+  - Equality: Equality by value, not by reference (this is ALWAYS the same; write exactly this text as shown)
+  - Owned by: [comma-separated list of aggregate/entity names that own this value object; if shared by multiple aggregates, list all; must match aggregates defined in this context]
 
 ## Domain Services
-Each domain service MUST follow this exact format.  
-**Do not add narrative — only structural facts. Domain services are rare; justify why the logic cannot live in an aggregate.**
+**⚠️ CRITICAL**: Domain services are rare. Use this section ONLY if logic cannot be placed in an aggregate. If you have no domain services, delete this section entirely.
+
+Each domain service MUST follow this exact format:
 
 - **ServiceName**:
-  - Logic: [specific operation in 1 sentence]
-  - Why not in aggregate: [specific reason: "spans multiple aggregates", "external API dependency", "complex calculation", etc.]
-  - Input: [comma-separated parameters with types]
-  - Output: [return type]
-  - Called by: [which aggregates call this service]
+  - Logic: [describe the specific operation in 1 sentence; example: "calculates shipping cost based on weight, destination, and currency"]
+  - Why not in aggregate: [explain specifically why this cannot be a method on an aggregate; REQUIRED reasons: "spans multiple aggregates" OR "external API dependency" OR "stateless calculation across different contexts"; if you cannot justify, move logic into an aggregate and delete this service]
+  - Input: [comma-separated list of parameter names and types; example: "weight: decimal, destination: Country, items: List<OrderLine>"]
+  - Output: [return type and description; example: "Money (amount calculated for this shipment)"]
+  - Called by: [comma-separated list of aggregate/entity names that invoke this service; must reference aggregates from this context]
 
 ## Invariants
 Each invariant MUST follow this exact format.  
 **Do not add interpretive prose — only add invariants that can be mechanically enforced.**
+**REQUIRED**: Every invariant MUST be referenced by ≥1 Requirement (REQ-*.md). If an invariant has no requirement, delete it.
 
-- **[AggregateRootName] Invariant**: [Entity/Aggregate] must always [have/maintain/enforce measurable constraint].
-  - Measurable form: [express as testable condition: e.g., "Order.Total == SUM(OrderLine.Amount)" or "Order.Status in {Pending, Confirmed, Shipped, Delivered}"]
-  - Example violation: [concrete scenario that breaks this invariant]
-  - Impact: [what business rule fails if this invariant is broken]
-  - Enforced by: [which aggregate root or value object prevents violation]
+- **{{AggregateName}}-InvariantName** (use this format strictly):
+  - Measurable form: [express as a testable boolean condition; example: "Order.Total == SUM(OrderLine.Subtotal)" OR "Order.Status in {Pending, Confirmed, Shipped, Delivered}" OR "Referral.TriageRecord is null if Status = Pending"; not prose, pure logic]
+  - Example violation: [provide ONE concrete scenario showing how this invariant breaks and what happens; example: "If an OrderLine with Subtotal 100 is added to Order with Total 50, invariant breaks and Total == 50 (not 150)"]
+  - Impact: [state the business consequence if this invariant is broken; example: "Order total becomes inconsistent with line items; accounting records fail; customer sees wrong price"]
+  - Enforced by: [state which aggregate root or value object prevents violations; example: "Order.AddLine() method validates and rejects negative subtotals; Order.Total computed property always recalculates"]
 
 ## Repositories
 Each repository MUST follow this exact format.  
 **Do NOT describe infrastructure (SQL, EF, API) — only domain query patterns and lifecycle.**
 
+⚠️ **CRITICAL**: Save lifecycle is a **domain contract**, not an implementation detail. It defines **when aggregates become persistently observable** (retrievable via load patterns). Each save lifecycle trigger MUST correspond to exactly ONE Domain Event (see Domain Events section). Requirements and tests MUST validate that aggregates are retrievable after save lifecycle triggers.
+
 - **AggregateName**:
-  - Interface: [I[AggregateName]Repository — replace [AggregateName] with actual aggregate name]
-  - Load patterns: [comma-separated queries: e.g., "by ID", "by owner", "active only"]
-  - Save lifecycle: [when this aggregate is persisted: "on creation", "on state change", "on transaction commit"]
+  - Interface: I{{AggregateName}}Repository (copy aggregate name from Aggregates section; do NOT invent new names)
+  - Load patterns: [list all ways this aggregate will be queried; comma-separated; example: "by ReferralId", "by status (pending, processed, failed)", "by date range (CreatedAt)"; if only one pattern needed, still use comma-separated format for consistency; each pattern becomes a Repository method]
+  - Save lifecycle: [list EACH specific trigger that causes aggregate to be persisted and Observable via load patterns]
+    - Format for each trigger: "on [STATE_CHANGE] [when DOMAIN_EVENT is emitted] — aggregate becomes retrievable by [LOAD_PATTERN]"
+    - Example 1: "on creation [when ReferralCreated event is emitted] — aggregate becomes retrievable by ReferralId"
+    - Example 2: "on state change [when TriageRecordAdded event is emitted] — aggregate becomes retrievable by date range and status"
+    - **Rule**: Each save lifecycle trigger MUST correspond to exactly ONE Domain Event name
+    - **Rule**: Each save lifecycle trigger MUST map to ≥1 load pattern (the aggregate must be findable by at least one load pattern after persistence)
+    - **Rule**: Requirements MUST explicitly state that aggregates are retrievable after save lifecycle triggers
+    - **Rule**: Tests MUST assert that aggregates exist and are retrievable using load patterns after save lifecycle triggers
 
 ## Domain Events
 Each domain event MUST follow this exact format.  
-**Events are ONLY emitted when an invariant is preserved and a state boundary is crossed.**
+**Events are ONLY emitted when an invariant is preserved AND a state boundary is crossed.**
 
-- **EventName** (Pattern: [Entity][Action]Occurred or [Entity][StateChange]Occurred):
-  - Examples: "OrderConfirmed", "PaymentAuthorized", "ShipmentDispatched"
-  - Emitted by: [which aggregate root emits this event]
-  - Trigger: [precise condition that causes this event — be specific: e.g., "when Order.Status changes from Pending to Confirmed"]
-  - Payload: [exact data structure: list fields and their types]
-  - Invariants preserved: [list ≥1 invariant that must hold after this event]
-  - Consequence: [Which specific bounded context(s) subscribe to this event and what business action they perform: e.g., "Shipping context starts fulfillment process"]
+⚠️ **CRITICAL**: Domain events trigger save lifecycle. When an event is emitted, the aggregate becomes persistently observable via Repository load patterns. Requirements and tests MUST validate that aggregates are retrievable after events are emitted. Each event MUST correspond to exactly ONE save lifecycle trigger in the Repositories section.
+
+- **EventName** (Naming pattern: {{AggregateName}}-[Action]Occurred or {{AggregateName}}-[StateChange]Occurred):
+  - Naming examples: "Referral-Created", "Referral-Triaged", "Payment-Authorized", "Order-Shipped" (follow this pattern strictly)
+  - Emitted by: [state the aggregate root name that emits this event; must match Aggregates section]
+  - Trigger: [state the precise condition that causes this event to be emitted; example: "when Referral.InitiateIntake() is called AND ReferralDocument is valid AND ReferralId is generated"]
+  - Payload: [list exact fields of event data with types; example: "ReferralId: UUID, ReferralDocument: bytes, CreatedAt: timestamp, SubmittedBy: UserId"; if no payload, write "None (identity-only event)"]
+  - Invariants preserved: [list invariant names from Invariants section that must hold after this event is emitted; format: "{{InvariantName}}"; separate with commas; minimum ≥1; ALL listed invariants must exist in Invariants section]
+  - Save lifecycle triggered: [name the specific save lifecycle trigger from Repositories section that is activated when this event is emitted; example: "Referral repository saves on creation"; must match EXACTLY one entry from Repositories → Save lifecycle section]
+  - Consequence: [describe which OTHER bounded context(s) (outside this context) subscribe to and act on this event; format: "[BoundedContext] receives [EventName] and [specific action]"; if no external subscribers, write "None (internal only)"]
+
+---
+
+## What Happens After SpecForge
+SpecForge completes at Task 7 (all tests pass). What happens next:
+
+1. **Domain logic is complete** — Aggregates enforce invariants, domain events are emitted correctly, tests validate behavior
+2. **Repository interfaces are defined** — IReferralRepository (from Repositories section) exists but is NOT yet implemented
+3. **Infrastructure must support Repository contracts** — Developer chooses persistent storage technology (Cosmos DB, Table Storage, SQL Server, PostgreSQL, etc.) and implements the Repository interface
+4. **Storage schema must support load patterns** — Developer creates database/table structure to support all load patterns defined in Repositories section (e.g., "by ReferralId", "by status", "by date range")
+5. **Repository implementation is tested** — Integration tests verify that Repository saves and loads aggregates correctly using the chosen storage technology
+6. **Application is deployable** — Domain logic + Repository implementation + integration tests = complete, testable, deployable application
+
+**Critical Rule**: Repository interface implementation (step 3 above) is NOT part of SpecForge. It occurs in a separate infrastructure/persistence layer AFTER SpecForge completes. But Repository interfaces are ONLY defined in SpecForge Context. Developers cannot implement Repository until Repositories section is complete.
+
+**Example**:
+```
+SpecForge defines: IReferralRepository with Load(id), LoadByStatus(status), LoadByDateRange(from, to), Save(referral)
+Developer implements: ReferralRepositoryCosmosDB, ReferralRepositorySqlServer, or ReferralRepositoryTableStorage
+Each implementation creates appropriate schema and isolation boundaries
+```
 
 ---
 
@@ -136,9 +179,26 @@ Each domain event MUST follow this exact format.
 - No other artefact may introduce new aggregates, value objects, invariants, or events.
 - Aggregate roots are the ONLY entry points for modifying data within this context.
 - Value objects are immutable and must be validated at creation.
+- **CRITICAL**: Save lifecycle is a domain contract. 
+  - Requirements MUST state that aggregates are retrievable after save lifecycle triggers (e.g., "When ReferralCreated occurs, the Referral aggregate shall be retrievable by ReferralId")
+  - Tests MUST assert that aggregates exist and are retrievable after save lifecycle triggers (e.g., "TEST-001: After creating Referral, Referral.Load(referralId) must return the created aggregate")
+  - This ensures developers understand that persistence is mandatory, not optional
+- Domain events are immutable and must correspond to save lifecycle triggers in Repositories section
 
 ---
 
 ## Next Step Directive
-Create one or more requirements using the `REQ-{{REQ_ID}}.md` template.  
-Each requirement **must reference at least one invariant and one domain event** defined above.
+Create one or more requirements using the `REQ-{{REQ_ID}}.md` template in `/requirements/` folder.
+
+**RULE**: Each requirement MUST reference ≥1 invariant OR ≥1 domain event from this Context (or both). If a requirement references neither, it does not belong in this bounded context.
+
+**Completeness check before proceeding**:
+- [ ] Every aggregate has a corresponding Repository (in Repositories section)
+- [ ] Every aggregate emits ≥1 Domain Event (in Domain Events section)
+- [ ] Every value object listed in Aggregates is defined in Value Objects section
+- [ ] Every invariant is testable (Measurable form is a condition, not prose)
+- [ ] Every domain event corresponds to exactly one save lifecycle trigger (by name)
+- [ ] Every load pattern in Repositories is reachable from at least one Domain Event's save lifecycle
+- [ ] Ubiquitous Language includes all aggregate, entity, value object, and event names
+- [ ] No invariants without requirements that reference them
+- [ ] No domain services without explicit justification for why they cannot be aggregates

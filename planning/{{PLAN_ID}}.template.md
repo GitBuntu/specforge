@@ -86,8 +86,10 @@ List all Scenarios and Tests for this feature IN THE EXACT ORDER listed in ../fe
 ---
 
 # Test-Driven Planning
-Each planning step MUST be derived directly from specific test assertions in {{TEST_ID_X}}.md files.  
-**No implementation decisions, no design choices, no architecture assumptions. ONLY decomposition of test assertions into discrete executable steps.**
+Each planning step MUST be derived directly from ONE specific assertion in {{TEST_ID_X}}.md files.  
+**One planning step = One test assertion. No implementation decisions, no design choices, no architecture assumptions.**
+
+**CRITICAL**: Planning step granularity is ASSERTION-BASED, not aggregate-based. If a test assertion is "Order.Total must return sum of all OrderLine.Subtotal values", this is ONE step (not two, even though it references both aggregates).
 
 **STEP FORMAT (REQUIRED - use EXACTLY this structure):**
 ```
@@ -95,28 +97,29 @@ Step N: [AGGREGATE_NAME] must [EXACT_ASSERTION_SYNTAX_from_test] → Tests {{TES
 ```
 
 **Rules for each placeholder:**
-- `[AGGREGATE_NAME]`: Copy EXACT aggregate or entity name from Context (e.g., Order, Customer, Payment) — do NOT invent or generalize
-- `[EXACT_ASSERTION_SYNTAX_from_test]`: Copy EXACT assertion text from {{TEST_ID_X}}.md Assertions section — e.g., "return sum of all OrderLine.Subtotal values" or "enforce invariant 'Total ≥ 0' and reject negative amounts"
-- `→ Tests {{TEST_ID_X}}`: Reference the specific test file that contains this assertion
-- `→ Validates {{REQ_ID_Y}}`: Reference the specific requirement that this test validates (from test's Primary Requirement field)
+- `[AGGREGATE_NAME]`: Primary aggregate name from Context (e.g., Order, Customer, Payment) — the one that owns the assertion
+- `[EXACT_ASSERTION_SYNTAX_from_test]`: Copy EXACT assertion syntax from {{TEST_ID_X}}.md Assertions section — use ONLY these 4 patterns:
+  - `[VARIABLE] == [EXPECTED_VALUE]`
+  - `[CONDITION] is true`
+  - `[VARIABLE] != [UNWANTED_VALUE]`
+  - `[EVENT_NAME] emitted with [FIELD_NAME] == [VALUE]`
+  - Example: "Total == sum of OrderLine.Subtotal" or "Order-Created emitted with OrderId == 123"
+- `→ Tests {{TEST_ID_X}}`: Reference the specific test file containing this assertion
+- `→ Validates {{REQ_ID_Y}}`: Reference the PRIMARY requirement from test's Requirement Traceability section
 
 **Forbidden words and phrases (use NONE of these):**
 - ❌ "implement", "configure", "set up", "initialize", "add", "modify", "update", "change", "refactor"
 - ❌ "handle", "process", "manage", "ensure", "maintain", "enable", "disable"
 - ❌ "may", "should", "could", "might", "probably", "possibly"
 - ❌ Generic verbs: "execute", "perform", "define", "create", "build", "develop"
-- ❌ ALL forbidden phrases are replaced by EXACT assertion text from tests
+- ❌ ALL forbidden phrases are replaced by EXACT assertion syntax from tests
 
 **Correct Examples:**
-- Step 1: Order.Total property must return sum of all OrderLine.Subtotal values → Tests TEST-001 → Validates REQ-001
-- Step 2: Order aggregate must enforce invariant "Total ≥ 0" and reject negative amounts → Tests TEST-002 → Validates REQ-002  
-- Step 3: Order aggregate must emit OrderCreated event with fields (OrderId, CustomerId, Total) when created → Tests TEST-003 → Validates REQ-003
+- Step 1: Order must Total == sum of all OrderLine.Subtotal values → Tests TEST-001 → Validates REQ-001
+- Step 2: Order must enforce invariant "Total ≥ 0" and reject negative amounts → Tests TEST-002 → Validates REQ-002  
+- Step 3: Order must emit Order-Created with OrderId == order_id → Tests TEST-003 → Validates REQ-003
 
-**Step Granularity Rule**: MAXIMUM one aggregate per step. If planning step references two aggregates (e.g., "Order and OrderLine must..."), split into two separate steps:
-- Step N: Order... → Tests {{TEST_ID_X}} → Validates {{REQ_ID_Y}}
-- Step N+1: OrderLine... → Tests {{TEST_ID_Z}} → Validates {{REQ_ID_Z}}
-
-**Step Ordering**: Steps MUST be numbered sequentially (1, 2, 3, 4, ...) in the order they appear below. Do NOT alphabetize, reorder, or use non-sequential numbering.
+**Step Ordering**: Steps MUST be numbered sequentially (1, 2, 3, 4, ...) IN THE EXACT ORDER assertions appear in test files. If TEST-001 has assertions A1, A2, A3 and TEST-002 has assertion B1, the order is Step 1 (A1), Step 2 (A2), Step 3 (A3), Step 4 (B1) — NOT alphabetical or by aggregate.
 
 ---
 
@@ -139,7 +142,14 @@ Step N: [AGGREGATE_NAME] must [EXACT_ASSERTION_SYNTAX_from_test] → Tests {{TES
 
 # Task Index
 
-This list defines ALL tasks for this feature in TDD alternating red-green cycles. The LLM MUST NOT add, remove, reorder, or rename tasks.
+This list defines ALL tasks for this ENTIRE FEATURE in TDD alternating red-green cycles. The LLM MUST NOT add, remove, reorder, or rename tasks.
+
+**Mapping Rule**: ONE planning step = TWO consecutive tasks (RED + IMPL). If there are N planning steps, there will be 2N tasks (N/2 tests, N/2 implementations). Task count MUST always be EVEN.
+
+**Example mapping**:
+- Planning Step 1 → TASK-001 [RED] (write test) + TASK-002 [IMPL] (make test pass)
+- Planning Step 2 → TASK-003 [RED] (write test) + TASK-004 [IMPL] (make test pass)
+- Planning Step 3 → TASK-005 [RED] (write test) + TASK-006 [IMPL] (make test pass)
 
 **TDD Pairing Rule (NON-NEGOTIABLE)**:
 - Tasks MUST alternate: [RED] → [IMPL] → [RED] → [IMPL]
@@ -155,22 +165,22 @@ Where:
 
 Example (CORRECT format):
 ```
-- TASK-001: Order.Total validation — [RED] — NOT STARTED
-- TASK-002: Order.Total validation — [IMPL] — NOT STARTED
-- TASK-003: Order invariant enforcement — [RED] — NOT STARTED
-- TASK-004: Order invariant enforcement — [IMPL] — NOT STARTED
+- TASK-001: Order.Total validates sum of items — [RED] — NOT STARTED
+- TASK-002: Order.Total validates sum of items — [IMPL] — NOT STARTED
+- TASK-003: Order rejects negative amounts — [RED] — NOT STARTED
+- TASK-004: Order rejects negative amounts — [IMPL] — NOT STARTED
 ```
 
 **Strict Rules:**
-- Format MUST be: `- TASK-NNN: [title] — [PHASE] — [STATUS]` (exact separators)
+- Format MUST be: `- TASK-NNN: [title] — [PHASE] — [STATUS]` (exact separators: ` — ` with spaces)
 - TASK numbers MUST be sequential (001, 002, 003...) — do NOT skip
 - Phases MUST alternate [RED]-[IMPL]-[RED]-[IMPL] — no exceptions
 - STATUS field MUST use EXACT case: `NOT STARTED`, `IN PROGRESS`, `COMPLETE`
-- Task titles MUST describe the behavior (copy from planning step)
-- **UPDATES ONLY TO STATUS and PHASE FIELDS**: Never modify task name or number
-- **Phase field is READ-ONLY after TASK-NNN.md is created**: Inherited from template, do NOT change
+- Task titles MUST describe the assertion being tested (copy from corresponding planning step assertion)
+- **UPDATES ONLY TO STATUS and PHASE FIELDS**: Never modify task name or number after creation
+- **Phase field is READ-ONLY after TASK-NNN.md is created**: Phase is set by template
 - Do NOT reorder tasks — maintain sequence as originally created
-- Do NOT create self-paired tasks (red and impl cannot be same TASK-NNN)
+- **Task count MUST be even** (equal [RED] and [IMPL] pairs): If planning has 5 steps, you have 10 tasks. If planning has N steps, you have 2N tasks.
 
 ---
 
@@ -201,6 +211,8 @@ To resume work on this plan:
 
 # Next Step Directive
 
+**CRITICAL RULE**: There is EXACTLY ONE plan file per feature (per {{FEATURE_NAME}}). This file decomposes ALL assertions from ALL tests into a single flat list of planning steps that drive ALL tasks for the entire feature.
+
 After all validations pass, create the first task pair (RED then IMPL).
 
 **Pre-flight Validation Checklist** (verify ALL before proceeding):
@@ -208,22 +220,23 @@ After all validations pass, create the first task pair (RED then IMPL).
 - ✅ Verify all {{SCENARIO_ID_X}}.feature files exist in `/features/{{FEATURE_NAME}}/`
 - ✅ Verify all {{TEST_ID_X}}.md files exist in `/tests/{{FEATURE_NAME}}/`
 - ✅ Verify all {{REQ_ID_X}}.md files exist in `/requirements/`
-- ✅ Verify ALL test cases (from Scenarios and Tests section) have planning steps (ZERO coverage gaps)
-- ✅ Verify each planning step references exact assertion from corresponding {{TEST_ID_X}}.md
+- ✅ Verify EVERY assertion from EVERY {{TEST_ID_X}}.md in Assertions section has a corresponding planning step (ZERO coverage gaps)
+- ✅ Verify each planning step references EXACT assertion syntax from corresponding {{TEST_ID_X}}.md
 - ✅ Verify ZERO forbidden words in planning steps (no implement, configure, add, set up, etc.)
 - ✅ Verify planning steps are numbered sequentially 1, 2, 3, 4, ... (no skips, no gaps)
-- ✅ Verify ZERO narrative sentences — planning steps are ONLY assertion syntax
-- ✅ Verify Task Index is populated with ALL tasks from planning steps
-- ✅ Verify Task Index format: `- TASK-NNN: [title] — [PHASE] — NOT STARTED` (exact format)
-- ✅ **Verify Task Index alternates [RED] and [IMPL]**: Task-001[RED], Task-002[IMPL], Task-003[RED], Task-004[IMPL], etc.
-- ✅ **Verify Task count is even**: Should have equal [RED] and [IMPL] tasks (N/2 tests, N/2 implementations)
+- ✅ Verify planning steps follow test order: if assertions appear in TEST-001, TEST-001, TEST-002, then planning steps are in that sequence
+- ✅ Verify ZERO narrative sentences — planning steps use ONLY assertion syntax patterns
+- ✅ Verify Task Index is populated with ALL tasks from planning steps (2 tasks per step: [RED] then [IMPL])
+- ✅ Verify Task Index format: `- TASK-NNN: [title] — [PHASE] — NOT STARTED` (exact format with ` — `)
+- ✅ **Verify Task Index alternates [RED] and [IMPL]**: TASK-001[RED], TASK-002[IMPL], TASK-003[RED], TASK-004[IMPL], etc.
+- ✅ **Verify Task count is EVEN**: If N planning steps exist, task count = 2N (N [RED] tasks, N [IMPL] tasks). No feature can have an odd number of tasks.
 
 **Task Creation** (only after validations pass):
-- Create directory: `/tasks/{{FEATURE_NAME}}/` (verify it doesn't already exist; if it does, you are resuming an existing plan)
+- Create directory: `/tasks/{{FEATURE_NAME}}/` (verify it doesn't already exist; if it does, you are resuming)
 - Create file: `/tasks/{{FEATURE_NAME}}/TASK-001.md`
-- Use template: `/tasks/{{FEATURE_NAME}}/TASK-{{TASK_ID}}.template.md`
-- Set Phase field: Copy phase from Task Index (`[RED]` for TASK-001)
-- The [RED] task MUST reference the corresponding {{TEST_ID_1}} that this test will write
+- Use template: `/tasks/{{FEATURE_NAME}}/TASK-TTT.template.md` (where TTT is the task number: 001, 002, etc.)
+- Set Phase field in template: Copy phase from Task Index (`[RED]` for TASK-001)
+- The [RED] task MUST reference the corresponding {{TEST_ID_1}} that will be created in this RED phase
 - After creating TASK-001, update Task Index status from `NOT STARTED` to `IN PROGRESS`
 - **Do NOT create TASK-002 until TASK-001[RED] is COMPLETE**
-- Continue pairing: each [RED] task is immediately followed by its [IMPL] pair in Task Index
+- Continue pairing: each [RED] task is immediately followed by its [IMPL] pair

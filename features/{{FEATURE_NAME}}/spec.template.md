@@ -50,7 +50,8 @@ Context → Requirements (1..N) → **Feature** → Scenario → Test → Plan �
 ---
 
 ## Implements Requirements
-List all requirements this feature implements (copy IDs from `../../requirements/`):
+List all requirements this feature implements (copy IDs from `../../requirements/`).
+**ORDER MATTERS**: Requirements listed below are implemented in this order; respecting order maintains implementation consistency.
 
 - {{REQ_ID_1}} (from `../../requirements/REQ-{{REQ_ID_1}}.md`)
 - {{REQ_ID_2}} (from `../../requirements/REQ-{{REQ_ID_2}}.md`)
@@ -67,21 +68,27 @@ This feature implements the following atomic domain behaviours.
 - {{REQ_ID_3}}: [COPY verbatim from REQ-{{REQ_ID_3}}.md — do not change a single word]
 
 ## Invariants
-These MUST be copied verbatim from the Context.  
-List ONLY the invariant names that the requirements above **enforce or preserve**.  
+These MUST be copied verbatim from the Context.
+List ONLY the invariant names that the requirements above **enforce or preserve**.
 **Do not list invariants unrelated to the implemented requirements. Do not paraphrase or add detail.**
 
+**IMPORTANT**: Multiple requirements can enforce the same invariant (1:N mapping allowed).
+One requirement can preserve/enforce multiple invariants. List each invariant only once.
+
 When this feature executes, these invariants MUST remain true:
-- [INVARIANT_NAME] — from Context (enforced by {{REQ_ID_X}})
+- [INVARIANT_NAME] — from Context (enforced by {{REQ_ID_X}}, {{REQ_ID_Y}})
 - [INVARIANT_NAME] — from Context (enforced by {{REQ_ID_X}})
 
 ## Domain Events
-These MUST be copied verbatim from the Context.  
-List ONLY the event names that the requirements above **emit or trigger**.  
+These MUST be copied verbatim from the Context.
+List ONLY the event names that the requirements above **emit or trigger**.
 **Do not list events unrelated to the implemented requirements. Do not paraphrase or add detail.**
 
+**IMPORTANT**: Multiple requirements can trigger the same event (1:N mapping allowed).
+One requirement can trigger multiple events. List each event only once.
+
 When this feature executes its requirements, these events are emitted:
-- [EVENT_NAME] — from Context (emitted by {{REQ_ID_X}})
+- [EVENT_NAME] — from Context (emitted by {{REQ_ID_X}}, {{REQ_ID_Y}})
 - [EVENT_NAME] — from Context (emitted by {{REQ_ID_X}})
 
 ---
@@ -93,6 +100,7 @@ When this feature executes its requirements, these events are emitted:
 - All invariants listed here must be supported by at least one requirement.
 - All events listed here must be triggered by at least one requirement.
 - Scenarios in this feature must use @tags matching the requirement IDs listed here.
+- **Scenario coverage gaps are acceptable**: Not every requirement requires a scenario. Scenarios test a subset of feature requirements as needed.
 
 ---
 
@@ -103,7 +111,10 @@ Create scenario files in the **same directory** as this spec.md file.
 
 **Scenario tags**: Each scenario MUST use @tags matching requirement IDs from Implements Requirements above.
 
-**Coverage**: Each scenario MUST reference ≥1 requirement ID from Implements Requirements section.
+**Coverage rules**:
+- Each scenario MUST reference ≥1 requirement ID from Implements Requirements section.
+- NOT all requirements require scenarios. Coverage gaps are acceptable.
+- Create only as many scenarios as needed to validate the feature behaviors.
 
 **Validation before proceeding**:
 - Verify all {{REQ_ID_X}} files exist in `../../requirements/`

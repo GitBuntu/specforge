@@ -47,13 +47,16 @@ You are defining: Task.
 ## TDD Cycle Phase (CRITICAL)
 **Phase**: `[RED]` or `[IMPL]` (MUST specify — no blank values allowed)
 
-- `[RED]`: This task writes a new failing test. Test must NOT pass before this task completes.
-- `[IMPL]`: This task writes implementation code to make ONE [RED] task's test pass. Implementation ONLY touches code, never tests.
+- `[RED]`: This task writes a new failing test in `/tests/{{FEATURE_NAME}}/{{TEST_ID}}.md` (path: inherited from {{PLAN_ID}}.md)
+  - Test must NOT pass before this task completes
+  - After completing this [RED] task, test file becomes static (immutable)
+- `[IMPL]`: This task writes implementation code to make ONE paired [RED] test pass
+  - Implementation touches code only, NEVER test files
+  - If paired [RED] test cannot pass → implementation is wrong (not the test)
 
 **Pairing Rule** (REQUIRED):
 - Each `[RED]` task MUST be paired with exactly one `[IMPL]` task
 - Example sequence: TASK-001[RED], TASK-002[IMPL], TASK-003[RED], TASK-004[IMPL]
-- Tasks MUST alternate in Plan Task Index
 - [RED] → [IMPL] → [RED] → [IMPL] pattern is NON-NEGOTIABLE
 
 ---
@@ -120,35 +123,38 @@ This Task implements behaviour validated by tests listed below.
 ---
 
 # Task Description
-This task MUST decompose directly from test case assertions.
+This section describes WHAT must be done (not HOW). It must decompose directly from planning step assertions.
 **Zero implementation decisions, zero design choices, zero infrastructure references.**
 
-**REQUIRED FORMAT** (use EXACTLY this structure for each test case):
+**REQUIRED FORMAT** (use EXACTLY this structure for each planning step this task addresses):
 ```
-Test: {{TEST_ID_X}} \u2192 Requirement: {{REQ_ID_X}} \u2192 Result: [EXACT_ASSERTION_from_test] \u2192 Approach: [ONE_SENTENCE_domain_focused]
+Planning Step Reference: [COPY planning step exactly from {{PLAN_ID}}.md Test-Driven Planning section]
+Test Reference: {{TEST_ID_X}} (from `/tests/{{FEATURE_NAME}}/{{TEST_ID_X}}.md`)
+Requirement: {{REQ_ID_X}} (from `/requirements/REQ-{{REQ_ID_X}}.md`)
+Assertion: [COPY exact assertion syntax from {{TEST_ID_X}}.md Assertions section]
+Approach: [ONE_SENTENCE_domain_focused — what domain behavior satisfies this assertion]
 ```
 
-**Rules for each placeholder:**
-- `{{TEST_ID_X}}`: Copy EXACT test ID from Scenarios and Tests Covered section \u2014 do NOT invent
-- `{{REQ_ID_X}}`: Copy from the test file's "Primary Requirement" field \u2014 must match requirement section above
-- `[EXACT_ASSERTION_from_test]`: Copy EXACT assertion syntax from {{TEST_ID_X}}.md Assertions section
-  - Examples: "Order.Total must return sum of all OrderLine.Subtotal values", "Order aggregate must enforce invariant 'Total \u2265 0'", "Order aggregate must emit OrderCreated event with fields (OrderId, CustomerId, Total)"
-  - Do NOT paraphrase, abbreviate, or simplify
-  - Do NOT write narrative: always assertion syntax
-- `[ONE_SENTENCE_domain_focused]`: Describe how to satisfy the assertion using ONLY domain concepts from Context
-  - ALLOWED terms: Aggregate names (Order, Customer, etc.), Value Objects, Invariants, Domain Events, properties, state
-  - Example: "Implement Total as computed property that sums OrderLine subtotals"
-  - FORBIDDEN terms: database, REST, HTTP, JSON, ORM, framework names (Spring, Django, etc.), design patterns (Factory, Strategy, etc.), infrastructure, implementation language, layer names (controller, service, repository), persistence mechanisms
-  - Violation examples (WRONG): "Use the ORDER table", "Create REST endpoint", "Implement using dependency injection", "Store in Azure Cosmos DB", "Use a lazy loading pattern"
+**Rules for each section:**
+- `Planning Step Reference`: Copy ENTIRE planning step line from {{PLAN_ID}}.md
+- `Test Reference`: Copy {{TEST_ID_X}} from the planning step
+- `Requirement`: Copy {{REQ_ID_X}} from the planning step
+- `Assertion`: Copy EXACTLY from test file Assertions section
 
 **Format Example** (CORRECT):
 ```
-Test: TEST-001 \u2192 Requirement: REQ-001 \u2192 Result: Order.Total must return sum of all OrderLine.Subtotal values \u2192 Approach: Implement Total as computed property on Order aggregate that sums all OrderLine.Subtotal values
-Test: TEST-002 \u2192 Requirement: REQ-002 \u2192 Result: Order aggregate must enforce invariant 'Total \u2265 0' and reject negative amounts \u2192 Approach: Add validation on Total property that rejects negative values and raises error
-Test: TEST-003 \u2192 Requirement: REQ-001 \u2192 Result: Order aggregate must emit OrderCreated event with fields (OrderId, CustomerId, Total) when created \u2192 Approach: Emit OrderCreated domain event from Order aggregate constructor with all required fields
-```
+Planning Step Reference: Step 1: Order must Total == sum of all OrderLine.Subtotal values → Tests TEST-001 → Validates REQ-001
+Test Reference: TEST-001
+Requirement: REQ-001
+Assertion: Total == sum of all OrderLine.Subtotal
+Approach: Implement Total as computed property on Order aggregate that sums all OrderLine.Subtotal values
 
-**One sentence rule**: MAXIMUM 1 sentence. If you need more than 1 sentence, your approach is too detailed (likely hiding implementation decisions). Stop at domain concept level.
+Planning Step Reference: Step 2: Order must emit Order-Created with OrderId == order_id → Tests TEST-002 → Validates REQ-002
+Test Reference: TEST-002
+Requirement: REQ-002
+Assertion: Order-Created emitted with OrderId == order_id
+Approach: Emit Order-Created domain event from Order aggregate constructor with all required payload fields
+```
 
 ---
 

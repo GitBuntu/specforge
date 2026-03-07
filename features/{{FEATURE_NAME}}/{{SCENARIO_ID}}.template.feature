@@ -48,19 +48,26 @@ Context → Requirements (1..N) → Feature → **Scenario** → Test → Plan �
 
 ---
 
-**REQUIREMENT TAG RULE: Feature tags MUST exactly match the requirement IDs listed in Covered Requirements below (in the same order).**
+**REQUIREMENT TAG RULE: Feature tags MUST exactly match the requirement IDs listed in the Feature spec.md "Implements Requirements" section (in the same order). Tags are NOT alphabetical; they follow spec ordering.**
 
 Scenario: {{SCENARIO_ID}} — [SCENARIO NAME: Copy or derive from requirement text. Do NOT invent. If requirement is action-driven, name scenario as "User/System does [action]"]
 
-**CONSTRAINT: The Given/When/Then steps MUST be derived directly from the requirement text.  
+**MULTI-REQUIREMENT SCENARIOS**: One scenario can test multiple requirements.
+- If requirements share Given/When steps (same preconditions/triggers), write Given/When ONCE.
+- If requirements differ in Then outcomes, list multiple Then steps (each validating one requirement).
+- Example: "Given [shared_precondition] When [shared_trigger] Then [outcome_for_REQ_ID_1] And Then [outcome_for_REQ_ID_2]"
+- Copy all Given/When/Then text verbatim from the related requirement text (do NOT paraphrase).
+
+**CONSTRAINT: The Given/When/Then steps MUST be derived directly from the requirement text.
 Do NOT add detail, steps, or behaviors beyond what the requirement specifies.**
 
-**Abbreviation rule: NEVER abbreviate requirement text. ONLY copy preconditions and outcomes verbatim from the requirement.  
+**Abbreviation rule: NEVER abbreviate requirement text. ONLY copy preconditions and outcomes verbatim from the requirement.
 If a precondition exceeds 1 line, copy it completely as written. Do NOT omit or shorten any part.**
 
   Given [precondition copied verbatim from the requirement — copy all of it, do not abbreviate]
   When [trigger copied verbatim from the requirement — copy exactly as written]
   Then [expected outcome copied verbatim from the requirement — copy exactly as written]
+  And Then [if additional requirements' outcomes]
 
 ---
 
