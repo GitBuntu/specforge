@@ -50,10 +50,11 @@ When invoked on a project, you MUST automatically:
 1. **Identify the project root** — the directory where you're invoked.
 2. **Extract the bounded context name** from the user's requirements.
    - Example: "health check service" → "health-monitoring"
-3. **Check if the feature already exists** — look for `{{project-root}}/features/{{bounded-context}}/`
+3. **Detect technology stack** — If React is detected, also consult [REACT-DISCIPLINE.md](REACT-DISCIPLINE.md) for component mapping, testing patterns, and folder organization.
+4. **Check if the feature already exists** — look for `{{project-root}}/features/{{bounded-context}}/`
    - If it exists: **Work ONLY within that existing directory. Do not delete, reorganize, or overwrite existing artefacts.**
-   - If it does not exist: Proceed to step 4.
-4. **Create the directory structure** (only if it doesn't already exist):
+   - If it does not exist: Proceed to step 5.
+5. **Create the directory structure** (only if it doesn't already exist):
    ```
    {{project-root}}/features/{{bounded-context}}/
    ├─ domain/
@@ -65,9 +66,9 @@ When invoked on a project, you MUST automatically:
    ├─ planning/
    └─ tasks/
    ```
-5. **Copy and rename all templates** from SpecForge into the feature directory (skip any that already exist; remove all `{{PLACEHOLDER}}` names).
-6. **Fill in the Context file (C1)** — extract the domain model from requirements.
-7. **Proceed through the chain** — Context → Requirement → Feature → Scenario → Test → Plan → Task.
+6. **Copy and rename all templates** from SpecForge into the feature directory (skip any that already exist; remove all `{{PLACEHOLDER}}` names).
+7. **Fill in the Context file (C1)** — extract the domain model from requirements.
+8. **Proceed through the chain** — Context → Requirement → Feature → Scenario → Test → Plan → Task.
 
 **DO NOT ask the user to manually copy templates or create directories. Bootstrap is automatic.**
 **DO NOT delete, reorganize, or overwrite existing features or artefacts. Existing files are sacred.**

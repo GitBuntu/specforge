@@ -58,12 +58,13 @@ features/
 When invoked on a **new project**, the LLM MUST automatically:
 
 1. **Identify the project root** — the directory where the user invoked SpecForge.
-2. **Check if the feature already exists** — look for `{{project-root}}/features/{{bounded-context-name}}/`
+2. **Detect technology stack** — If React is detected, also consult [REACT-DISCIPLINE.md](REACT-DISCIPLINE.md) for component-to-aggregate mapping, test assertion patterns, and folder organization during Task execution.
+3. **Check if the feature already exists** — look for `{{project-root}}/features/{{bounded-context-name}}/`
    - If it exists, **work ONLY within that existing feature directory. Do not delete, reorganize, or create a new one.**
-   - If it does not exist, proceed to step 3.
-3. **Extract the bounded context name** from the user's requirements or domain description.
+   - If it does not exist, proceed to step 4.
+4. **Extract the bounded context name** from the user's requirements or domain description.
    - Example: "health check service" → bounded context = "health-monitoring"
-4. **Create the feature directory structure** (only if it doesn't already exist):
+5. **Create the feature directory structure** (only if it doesn't already exist):
    ```
    {{project-root}}/features/{{bounded-context-name}}/
    ├─ domain/
@@ -75,17 +76,17 @@ When invoked on a **new project**, the LLM MUST automatically:
    ├─ planning/
    └─ tasks/
    ```
-5. **Copy and rename all templates** from SpecForge (only if files don't already exist):
+6. **Copy and rename all templates** from SpecForge (only if files don't already exist):
    - `SpecForge/domain/00-context.template.md` → `{{project}}/features/{{context}}/domain/00-context.md`
    - `SpecForge/requirements/REQ-{{REQ_ID}}.template.md` → `{{project}}/features/{{context}}/requirements/REQ-001.md`
    - `SpecForge/features/{{FEATURE_NAME}}/spec.template.md` → `{{project}}/features/{{context}}/features/{{feature-name}}/spec.md`
    - All others similarly renamed (no template placeholders remain)
    - **SKIP any files that already exist. Do not overwrite or delete existing artefacts.**
-6. **Fill in the Context file** (first artefact, C1) if it's empty:
+7. **Fill in the Context file** (first artefact, C1) if it's empty:
    - Extract domain model from user requirements
    - Define Bounded Context, Aggregates, Value Objects, Invariants, Domain Events
    - Use only the user's domain concepts; no technology or framework names
-7. **Proceed with the chain** — do not stop until task completion.
+8. **Proceed with the chain** — do not stop until task completion.
 
 **Resume Logic**: If SpecForge is invoked on an **existing project** with partially filled templates, the LLM MUST:
 1. Identify the first incomplete artefact in the CURRENT feature
