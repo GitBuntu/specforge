@@ -41,7 +41,11 @@ Tell the LLM:
 - Fill in the Context
 - Generate Requirements, Features, Scenarios, Tests, Plans, Tasks
 - Stop when all tasks are complete
+- Optionally apply visual mapping to completed requirements (post-task, optional)
 - **NEVER delete or reorganize existing features**
+
+**Visual Mapping (Optional Post-Task Step)**
+After all tasks complete, you can optionally generate visual maps for each requirement. Visual mapping does NOT modify immutable test artifacts (locked after [RED] phase). Instead, it validates that requirement concepts are explicit and test coverage is complete. See [VISUAL-MAPPING-DISCIPLINE.md](VISUAL-MAPPING-DISCIPLINE.md) for the 5-pass method.
 
 ### For LLMs (Automatic Bootstrap)
 

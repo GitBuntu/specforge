@@ -240,3 +240,24 @@ After all validations pass, create the first task pair (RED then IMPL).
 - After creating TASK-001, update Task Index status from `NOT STARTED` to `IN PROGRESS`
 - **Do NOT create TASK-002 until TASK-001[RED] is COMPLETE**
 - Continue pairing: each [RED] task is immediately followed by its [IMPL] pair
+
+---
+
+# Post-Task: Optional Visual Mapping (Artifact 8)
+
+After all tasks in the Task Index are COMPLETE, optionally apply visual mapping to validate requirements and document coverage.
+
+**Visual Mapping Step**:
+1. For each requirement (REQ-{{REQ_ID_X}}.md in /requirements/), create a visual map at `visual-mapping/REQ-{{REQ_ID_X}}-MAPPING.md`
+2. Use the 5-pass method from [VISUAL-MAPPING-DISCIPLINE.md](../../VISUAL-MAPPING-DISCIPLINE.md#visual-mapping-in-post-task-phase)
+3. Include a Coverage Mapping table (optional) that validates Requirement Segments (R1, R2, ...) align with test assertions
+4. Document any coverage gaps as "For future iteration" notes (do NOT modify locked tests)
+
+**Key Constraint**: 
+- Tests are **immutable** after [RED] commits; visual mapping cannot modify them
+- Visual maps serve as **validation and documentation**, not drivers of test creation
+- Use visual maps to validate requirement clarity and communicate test coverage to stakeholders
+
+**This step is OPTIONAL**. Visual mapping is supplementary documentation for clarity and traceability, not required for SpecForge completion.
+
+For detailed guidance, see [VISUAL-MAPPING-DISCIPLINE.md § Visual Mapping in Post-Task Phase](../../VISUAL-MAPPING-DISCIPLINE.md#visual-mapping-in-post-task-phase)

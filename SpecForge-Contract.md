@@ -87,12 +87,19 @@ When invoked on a **new project**, the LLM MUST automatically:
    - Define Bounded Context, Aggregates, Value Objects, Invariants, Domain Events
    - Use only the user's domain concepts; no technology or framework names
 8. **Proceed with the chain** — do not stop until task completion.
+9. **(Optional) Apply Visual Mapping** after all tasks complete:
+   - For each requirement (REQ-{{REQ_ID}}.md), optionally generate a visual map at `visual-mapping/REQ-{{REQ_ID}}-MAPPING.md`
+   - Use the 5-pass method from [VISUAL-MAPPING-DISCIPLINE.md](../VISUAL-MAPPING-DISCIPLINE.md)
+   - Visual maps validate that requirements are unambiguous and test coverage is complete
+   - Visual maps cannot modify immutable tests (locked after [RED] phase)
+   - This step is OPTIONAL; visual mapping is supplementary documentation, not required for completion
 
 **Resume Logic**: If SpecForge is invoked on an **existing project** with partially filled templates, the LLM MUST:
 1. Identify the first incomplete artefact in the CURRENT feature
 2. Complete that artefact
 3. Continue the chain
-4. **Never touch other features.**
+4. After all tasks complete (Plan.Task Index shows all COMPLETE), optionally offer to apply visual mapping
+5. **Never touch other features.**
 
 **The LLM MUST NOT ask the user to manually set up directories or copy templates.** Bootstrap is automatic.
 **The LLM MUST NOT delete, rename, or reorganize existing features.** Existing features are immutable.

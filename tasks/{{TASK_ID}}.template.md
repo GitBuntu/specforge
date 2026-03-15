@@ -158,6 +158,18 @@ Approach: Emit Order-Created domain event from Order aggregate constructor with 
 
 ---
 
+# Next Step: Optional Visual Mapping
+
+After this task completes and ALL tasks in the Plan are COMPLETE:
+
+**Optional**: Apply visual mapping to completed requirements for validation and documentation.
+- See [VISUAL-MAPPING-DISCIPLINE.md](../../VISUAL-MAPPING-DISCIPLINE.md#visual-mapping-in-post-task-phase) for post-task visual mapping guidance
+- Create visual maps at: `visual-mapping/REQ-{{REQ_ID}}-MAPPING.md` (for each requirement)
+- Visual maps validate requirement clarity and test coverage without modifying immutable tests
+- This step is OPTIONAL; visual mapping is supplementary documentation
+
+---
+
 # TDD Verification Checklist (Pre-Completion)
 
 **REQUIRED validations before marking Status = COMPLETE:**
