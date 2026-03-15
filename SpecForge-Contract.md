@@ -89,7 +89,12 @@ When invoked on a **new project**, the LLM MUST automatically:
 8. **Proceed with the chain** — do not stop until task completion.
 9. **(Optional) Apply Visual Mapping** after all tasks complete:
    - For each requirement (REQ-{{REQ_ID}}.md), optionally generate a visual map at `visual-mapping/REQ-{{REQ_ID}}-MAPPING.md`
-   - Use the 5-pass method from [VISUAL-MAPPING-DISCIPLINE.md](../VISUAL-MAPPING-DISCIPLINE.md)
+   - Use the 5-pass method from [VISUAL-MAPPING-DISCIPLINE.md](../VISUAL-MAPPING-DISCIPLINE.md):
+     - **Pass 1: Domain Picture** — Extract all nouns (actors, systems, data, events) as color-coded boxes
+     - **Pass 2: Interaction Picture** — Extract all verbs (actions) as arrows, showing causality and blocking/non-blocking behavior
+     - **Pass 3: Requirement Segments** — Map every sentence to boxes and arrows for zero-gap coverage
+     - **Pass 4: Storyboard Panels** — Create 3–4 sequential snapshots showing progression
+     - **Pass 5: Validation** — Verify non-ambiguity and closure
    - Visual maps validate that requirements are unambiguous and test coverage is complete
    - Visual maps cannot modify immutable tests (locked after [RED] phase)
    - This step is OPTIONAL; visual mapping is supplementary documentation, not required for completion
@@ -136,6 +141,33 @@ All SpecForge artefacts ground in Domain-Driven Design (DDD):
 - **Requirement**: References DDD concepts from Context (no invention)
 - **Feature**: Lists Aggregates, Invariants, Events from Context (no new DDD concepts)
 - **Scenario, Test, Plan, Task**: Preserve Aggregates, Invariants, Events from Context (no drift)
+
+## Visual Mapping Discipline
+After task completion, visual mapping provides deterministic, visual-first analysis of requirements to eliminate ambiguity and validate test coverage.
+
+**Visual Mapping Process (5-Pass Method)**:
+- **Pass 1: Domain Picture** — Extract all nouns (actors, systems, data, events) as color-coded boxes in left→right order
+- **Pass 2: Interaction Picture** — Extract all verbs (actions) as arrows showing causality; solid arrows = blocking, dashed arrows = non-blocking side effects
+- **Pass 3: Requirement Segments** — Map every sentence to boxes and arrows, proving zero-gap coverage (every element justified, every element required)
+- **Pass 4: Storyboard Panels** — Create 3–4 sequential snapshots showing progression through the requirement story
+- **Pass 5: Validation** — Run non-ambiguity checklist (all requirements explicit, all boxes and arrows referenced, no orphaned elements)
+
+**When to apply visual mapping**:
+- ✅ Complex requirements (>5 sentences, multi-actor flows)
+- ✅ Event-driven or asynchronous scenarios
+- ✅ Multi-step validations with cascading logic
+- ✅ Cross-system interactions (external services, AI models, OCR)
+- ✅ Design review sessions and stakeholder presentations
+- ❌ Skip trivial, single-action requirements
+- ❌ Skip well-understood domains where prose is already unambiguous
+
+**Output & Immutability**:
+- Visual maps are stored at `visual-mapping/REQ-{{REQ_ID}}-MAPPING.md`
+- Visual maps are supplementary documentation; they CANNOT modify immutable test artifacts (locked after [RED] phase)
+- If a requirement changes, regenerate the visual mapping from Pass 1
+- If visual mapping and code diverge, the code is wrong (not the diagram)
+
+See [VISUAL-MAPPING-DISCIPLINE.md](VISUAL-MAPPING-DISCIPLINE.md) for complete guidance, examples, and validation checklist.
 
 ---
 

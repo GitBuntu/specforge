@@ -45,7 +45,26 @@ Tell the LLM:
 - **NEVER delete or reorganize existing features**
 
 **Visual Mapping (Optional Post-Task Step)**
-After all tasks complete, you can optionally generate visual maps for each requirement. Visual mapping does NOT modify immutable test artifacts (locked after [RED] phase). Instead, it validates that requirement concepts are explicit and test coverage is complete. See [VISUAL-MAPPING-DISCIPLINE.md](VISUAL-MAPPING-DISCIPLINE.md) for the 5-pass method.
+After all tasks complete, you can optionally generate visual maps for each requirement using the 5-pass methodology. Visual mapping transforms textual requirements into explicit, deterministic diagrams that eliminate ambiguity.
+
+**Visual mapping includes:**
+- **Pass 1: Domain Picture** — All domain entities (actors, systems, data, events) as boxes in left→right order
+- **Pass 2: Interaction Picture** — Causality and action flow with solid arrows (blocking) and dashed arrows (non-blocking side effects)
+- **Pass 3: Requirement Segments** — Mapping every sentence to boxes and arrows (zero-gap coverage proof)
+- **Pass 4: Storyboard Panels** — 3–4 sequential snapshots showing progression through the requirement
+- **Pass 5: Validation Checklist** — Non-ambiguity verification (all requirements explicit, no orphaned elements)
+
+Visual mapping does NOT modify immutable test artifacts (locked after [RED] phase). Instead, it validates that requirements are unambiguous, design is clear, and test coverage is complete.
+
+**When to apply visual mapping:**
+- ✅ Complex requirements (>5 sentences, multi-actor flows)
+- ✅ Event-driven scenarios or external system interactions
+- ✅ Design reviews and stakeholder presentations
+- ✅ Multi-step validations with hidden ambiguity
+- ❌ Skip trivial, single-action requirements ("User logs in")
+- ❌ Skip if the requirement is already crystal-clear
+
+See [VISUAL-MAPPING-DISCIPLINE.md](VISUAL-MAPPING-DISCIPLINE.md) for the complete 5-pass method with examples.
 
 ### For LLMs (Automatic Bootstrap)
 
