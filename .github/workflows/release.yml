@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    # Explicitly exclude specification and documentation files from triggering code review
+    paths-ignore:
+      - '**.feature'           # Gherkin scenario specifications (not code)
+      - '**.md'               # Markdown documentation and templates (not code)
+      - '**.template.md'      # SpecForge template files (not code)
+      - 'visual-mapping/**'   # Visual mapping diagrams (not code)
+      - 'domain/**'           # Domain context documentation (not code)
+      - 'requirements/**'     # Requirements specifications (not code)
+      - 'features/**'         # Feature specifications (not code)
+      - 'tests/**'            # Test specifications (not code)
+      - 'planning/**'         # Planning documentation (not code)
+      - 'tasks/**'            # Task documentation (not code)
+  pull_request:
+    branches:
+      - main
+    # Explicitly exclude specification and documentation files from PR review
+    paths-ignore:
+      - '**.feature'           # Gherkin scenario specifications (not code)
+      - '**.md'               # Markdown documentation and templates (not code)
+      - '**.template.md'      # SpecForge template files (not code)
+      - 'visual-mapping/**'   # Visual mapping diagrams (not code)
+      - 'domain/**'           # Domain context documentation (not code)
+      - 'requirements/**'     # Requirements specifications (not code)
+      - 'features/**'         # Feature specifications (not code)
+      - 'tests/**'            # Test specifications (not code)
+      - 'planning/**'         # Planning documentation (not code)
+      - 'tasks/**'            # Task documentation (not code)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Only run if changes include files OTHER than specifications/documentation
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && 
+       contains(github.event.pull_request.title, 'skip-release') == false)
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Check if specification-only PR
+        id: check-files
+        run: |
+          # Get list of changed files
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+          fi
+          
+          # Check if all changed files are specifications/documentation
+          NON_SPEC_FILES=$(echo "$CHANGED_FILES" | grep -v -E '(\.feature$|\.md$|\.template\.|visual-mapping/|domain/|requirements/|features/|tests/|planning/|tasks/)' || true)
+          
+          if [ -z "$NON_SPEC_FILES" ]; then
+            echo "spec_only=true" >> $GITHUB_OUTPUT
+            echo "✓ Pull Request contains specification/documentation changes only (no code review needed)"
+          else
+            echo "spec_only=false" >> $GITHUB_OUTPUT
+            echo "✓ Pull Request contains code changes"
+          fi
+      
+      - name: Skip release for specification-only changes
+        if: steps.check-files.outputs.spec_only == 'true'
+        run: |
+          echo "This PR modifies only specifications and documentation."
+          echo "No code review or release action is required."
+          exit 0
+      
+      - name: Create release (if code changes exist)
+        if: steps.check-files.outputs.spec_only == 'false'
+        run: |
+          echo "Release workflow would run here for code changes"
+          # Add your actual release steps here
